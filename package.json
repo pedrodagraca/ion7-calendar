@@ -1,9 +1,13 @@
 {
   "name": "ion2-calendar",
-  "version": "3.6.1",
+  "version": "3.6.2",
   "description": "A date picker component for ionic2 ",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=14.0.0 <16.0.0",
+    "npm": "<7"
+  },
   "scripts": {
     "start": "cd ./dev && npm start",
     "clean:dist": "rm -rf dist",
@@ -15,7 +19,8 @@
     "build:compile-scss": "gulp copy-scss && gulp rename-scss && gulp clean-scss",
     "test": "echo \"Error: no test specified\"",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
-    "packagr": "ng-packagr -p package.json"
+    "packagr": "ng-packagr -p package.json",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
