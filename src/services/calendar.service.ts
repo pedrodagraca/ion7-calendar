@@ -2,23 +2,26 @@ import { Inject, Injectable, Optional } from '@angular/core';
 import * as moment from 'moment';
 
 import {
-  CalendarOriginal,
   CalendarDay,
   CalendarMonth,
-  CalendarModalOptions,
+  CalendarOriginal,
   CalendarResult,
   DayConfig,
+  InternalCalendarModalOptions,
 } from '../calendar.model';
 import { defaults, pickModes } from '../config';
 import { DEFAULT_CALENDAR_OPTIONS } from './calendar-options.provider';
+import { Nullable } from '../../../../core/common/domain/types/types';
 
 const isBoolean = (input: any) => input === true || input === false;
 
 @Injectable()
 export class CalendarService {
-  private readonly defaultOpts: CalendarModalOptions;
+  private readonly defaultOpts: InternalCalendarModalOptions;
 
-  constructor(@Optional() @Inject(DEFAULT_CALENDAR_OPTIONS) defaultOpts: CalendarModalOptions) {
+  public static readonly DEFAULT_DATE: Date = new Date(1971, 0, 1);
+
+  constructor(@Optional() @Inject(DEFAULT_CALENDAR_OPTIONS) defaultOpts: InternalCalendarModalOptions) {
     this.defaultOpts = defaultOpts;
   }
 
@@ -26,11 +29,11 @@ export class CalendarService {
     return 12;
   }
 
-  safeOpt(calendarOptions: any = {}): CalendarModalOptions {
+  safeOpt(calendarOptions: any = {}): InternalCalendarModalOptions {
     const _disableWeeks: number[] = [];
     const _daysConfig: DayConfig[] = [];
     let {
-      from = new Date(),
+      from = CalendarService.DEFAULT_DATE,
       to = 0,
       weekStart = 0,
       step = this.DEFAULT_STEP,
@@ -86,9 +89,10 @@ export class CalendarService {
       defaultDate: calendarOptions.defaultDate || null,
       defaultDates: calendarOptions.defaultDates || null,
       defaultDateRange: calendarOptions.defaultDateRange || null,
+      defaultFrom: moment(new Date()).subtract(2, 'months').toDate(),
       showAdjacentMonthDay,
       defaultEndDateToStartDate,
-      clearLabel
+      clearLabel,
     };
   }
 
@@ -108,12 +112,14 @@ export class CalendarService {
     };
   }
 
-  findDayConfig(day: any, opt: CalendarModalOptions): any {
+  findDayConfig(day: any, opt: InternalCalendarModalOptions): any {
+    if (!opt || !opt.daysConfig) return null;
     if (opt.daysConfig.length <= 0) return null;
+
     return opt.daysConfig.find(n => day.isSame(n.date, 'day'));
   }
 
-  createCalendarDay(time: number, opt: CalendarModalOptions, month?: number): CalendarDay {
+  createCalendarDay(time: number, opt: InternalCalendarModalOptions, month?: number): CalendarDay {
     let _time = moment(time);
     let date = moment(time);
     let isToday = moment().isSame(_time, 'days');
@@ -121,7 +127,7 @@ export class CalendarService {
     let _rangeBeg = moment(opt.from).valueOf();
     let _rangeEnd = moment(opt.to).valueOf();
     let isBetween = true;
-    let disableWee = opt.disableWeeks.indexOf(_time.toDate().getDay()) !== -1;
+    let disableWee = opt.disableWeeks?.indexOf(_time.toDate().getDay()) !== -1;
     if (_rangeBeg > 0 && _rangeEnd > 0) {
       if (!opt.canBackwardsSelected) {
         isBetween = !_time.isBetween(_rangeBeg, _rangeEnd, 'days', '[]');
@@ -137,7 +143,7 @@ export class CalendarService {
       }
     }
 
-    let _disable = false;
+    let _disable: boolean;
 
     if (dayConfig && isBoolean(dayConfig.disable)) {
       _disable = dayConfig.disable;
@@ -164,7 +170,9 @@ export class CalendarService {
       title,
       subTitle,
       selected: false,
+      // @ts-ignore
       isLastMonth: date.month() < month,
+      // @ts-ignore
       isNextMonth: date.month() > month,
       marked: dayConfig ? dayConfig.marked || false : false,
       cssClass: dayConfig ? dayConfig.cssClass || '' : '',
@@ -174,7 +182,7 @@ export class CalendarService {
     };
   }
 
-  createCalendarMonth(original: CalendarOriginal, opt: CalendarModalOptions): CalendarMonth {
+  createCalendarMonth(original: CalendarOriginal, opt: InternalCalendarModalOptions): CalendarMonth {
     let days: Array<CalendarDay> = new Array(6).fill(null);
     let len = original.howManyDays;
     for (let i = original.firstWeek; i < len + original.firstWeek; i++) {
@@ -220,16 +228,14 @@ export class CalendarService {
     };
   }
 
-  createMonthsByPeriod(startTime: number, monthsNum: number, opt: CalendarModalOptions): Array<CalendarMonth> {
+  createMonthsByPeriod(startTime: number, monthsNum: number, opt: InternalCalendarModalOptions): Array<CalendarMonth> {
     let _array: Array<CalendarMonth> = [];
 
     let _start = new Date(startTime);
     let _startMonth = new Date(_start.getFullYear(), _start.getMonth(), 1).getTime();
 
     for (let i = 0; i < monthsNum; i++) {
-      let time = moment(_startMonth)
-        .add(i, 'M')
-        .valueOf();
+      let time = moment(_startMonth).add(i, 'M').valueOf();
       let originalCalendar = this.createOriginalCalendar(time);
       _array.push(this.createCalendarMonth(originalCalendar, opt));
     }
@@ -237,25 +243,44 @@ export class CalendarService {
     return _array;
   }
 
-  wrapResult(original: CalendarDay[], pickMode: string) {
-    let result: any;
-    switch (pickMode) {
-      case pickModes.SINGLE:
-        result = this.multiFormat(original[0].time);
-        break;
-      case pickModes.RANGE:
-        result = {
-          from: this.multiFormat(original[0].time),
-          to: this.multiFormat((original[1] || original[0]).time),
-        };
-        break;
-      case pickModes.MULTI:
-        result = original.map(e => this.multiFormat(e.time));
-        break;
-      default:
-        result = original;
+  createSubsctractMonthsByPeriod(
+    startTime: number,
+    monthsNum: number,
+    opt: InternalCalendarModalOptions
+  ): Array<CalendarMonth> {
+    let _array: Array<CalendarMonth> = [];
+
+    let _start = new Date(startTime);
+    let _startMonth = new Date(_start.getFullYear(), _start.getMonth(), 1).getTime();
+
+    for (let i = 0; i < monthsNum; i++) {
+      let time = moment(_startMonth).subtract(i, 'M').valueOf();
+      let originalCalendar = this.createOriginalCalendar(time);
+      _array.unshift(this.createCalendarMonth(originalCalendar, opt));
     }
-    return result;
+
+    return _array;
+  }
+
+  wrapResult(original: Array<Nullable<CalendarDay>>, pickMode: string | undefined) {
+    if (pickMode === pickModes.SINGLE) {
+      // @ts-ignore
+      return this.multiFormat(original[0].time);
+    }
+    if (pickMode === pickModes.RANGE) {
+      return {
+        // @ts-ignore
+        from: this.multiFormat(original[0].time),
+        // @ts-ignore
+        to: this.multiFormat((original[1] || original[0]).time),
+      };
+    }
+    if (pickMode === pickModes.MULTI) {
+      // @ts-ignore
+      return original.map(e => this.multiFormat(e.time));
+    }
+
+    return original;
   }
 
   multiFormat(time: number): CalendarResult {
