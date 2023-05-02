@@ -29,8 +29,8 @@ export interface CalendarDay {
 }
 
 export class CalendarMonth {
-  original!: CalendarOriginal;
-  days!: Array<CalendarDay>;
+  original: CalendarOriginal;
+  days: Array<CalendarDay | void>;
 }
 
 export interface DayConfig {
@@ -74,31 +74,6 @@ export interface CalendarModalOptions extends CalendarOptions {
   defaultEndDateToStartDate?: boolean;
 }
 
-export interface InternalCalendarModalOptions extends CalendarModalOptions {
-  autoDone: boolean;
-  cssClass: string;
-  id: string;
-  isSaveHistory: boolean;
-  closeLabel: string;
-  doneLabel: string;
-  clearLabel: string;
-  closeIcon: boolean;
-  doneIcon: boolean;
-  canBackwardsSelected: boolean;
-  title: string;
-  defaultScrollTo: Date;
-  defaultDate: DefaultDate;
-  defaultDates: DefaultDate[];
-  defaultDateRange: { from: DefaultDate; to: DefaultDate } | null;
-  defaultFrom: Date;
-  step: number;
-  /**
-   * @deprecated this version notwork
-   */
-  showYearPicker: boolean;
-  defaultEndDateToStartDate: boolean;
-}
-
 export interface CalendarOptions {
   from?: Date | number;
   to?: Date | number;
@@ -124,18 +99,18 @@ export interface CalendarComponentOptions extends CalendarOptions {
 }
 
 export class CalendarResult {
-  time!: number;
-  unix!: number;
-  dateObj!: Date;
-  string!: string;
-  years!: number;
-  months!: number;
-  date!: number;
+  time: number;
+  unix: number;
+  dateObj: Date;
+  string: string;
+  years: number;
+  months: number;
+  date: number;
 }
 
 export class CalendarComponentMonthChange {
-  oldMonth!: CalendarResult;
-  newMonth!: CalendarResult;
+  oldMonth: CalendarResult;
+  newMonth: CalendarResult;
 }
 
 export type DefaultDate = Date | string | number | null;

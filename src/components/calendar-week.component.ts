@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import { defaults } from '../config';
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ion-calendar-week',
   styleUrls: ['./calendar-week.component.scss'],
   template: `
@@ -18,7 +17,7 @@ export class CalendarWeekComponent {
   _displayWeekArray: string[] = this._weekArray;
   _weekStart = 0;
   @Input()
-  public color: string = defaults.COLOR;
+  color: string = defaults.COLOR;
 
   constructor() {}
 
@@ -41,7 +40,6 @@ export class CalendarWeekComponent {
   adjustSort(): void {
     if (this._weekStart === 1) {
       const cacheWeekArray = [...this._weekArray];
-      // @ts-ignore
       cacheWeekArray.push(cacheWeekArray.shift());
       this._displayWeekArray = [...cacheWeekArray];
     } else if (this._weekStart === 0) {

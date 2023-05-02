@@ -10,33 +10,30 @@ export const MONTH_VALUE_ACCESSOR: any = {
 };
 
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ion-calendar-month',
   providers: [MONTH_VALUE_ACCESSOR],
   styleUrls: ['./month.component.scss'],
   // tslint:disable-next-line:use-host-property-decorator
-  // eslint-disable-next-line @angular-eslint/no-host-metadata-property
   host: {
-    '[class.component-mode]': 'componentMode',
+    '[class.component-mode]': 'componentMode'
   },
   template: `
     <div [class]="color">
       <ng-template [ngIf]="!_isRange" [ngIfElse]="rangeBox">
         <div class="days-box">
-          <ng-template ngFor let-day [ngForOf]="month.days || []">
+          <ng-template ngFor let-day [ngForOf]="month.days" [ngForTrackBy]="trackByTime">
             <div class="days">
               <ng-container *ngIf="day">
-                <button
-                  type="button"
-                  [class]="'days-btn ' + day.cssClass"
-                  [class.today]="day.isToday"
-                  (click)="onSelected(day)"
-                  [class.marked]="day.marked"
-                  [class.last-month-day]="day.isLastMonth"
-                  [class.next-month-day]="day.isNextMonth"
-                  [class.on-selected]="isSelected(day.time)"
-                  [disabled]="day.disable"
-                  [attr.aria-label]="getDayLabel(day) | date : DAY_DATE_FORMAT">
+                <button type='button'
+                        [class]="'days-btn ' + day.cssClass"
+                        [class.today]="day.isToday"
+                        (click)="onSelected(day)"
+                        [class.marked]="day.marked"
+                        [class.last-month-day]="day.isLastMonth"
+                        [class.next-month-day]="day.isNextMonth"
+                        [class.on-selected]="isSelected(day.time)"
+                        [disabled]="day.disable"
+                        [attr.aria-label]="getDayLabel(day) | date:DAY_DATE_FORMAT">
                   <p>{{ day.title }}</p>
                   <small *ngIf="day.subTitle">{{ day?.subTitle }}</small>
                 </button>
@@ -48,31 +45,30 @@ export const MONTH_VALUE_ACCESSOR: any = {
 
       <ng-template #rangeBox>
         <div class="days-box">
-          <ng-template ngFor let-day [ngForOf]="month.days || []">
-            <div
-              class="days"
-              [class.startSelection]="isStartSelection(day)"
-              [class.endSelection]="isEndSelection(day)"
-              [class.is-first-wrap]="day?.isFirst"
-              [class.is-last-wrap]="day?.isLast"
-              [class.between]="isBetween(day)">
+          <ng-template ngFor let-day [ngForOf]="month.days" [ngForTrackBy]="trackByTime">
+            <div class="days"
+                 [class.startSelection]="isStartSelection(day)"
+                 [class.endSelection]="isEndSelection(day)"
+                 [class.is-first-wrap]="day?.isFirst"
+                 [class.is-last-wrap]="day?.isLast"
+                 [class.between]="isBetween(day)">
               <ng-container *ngIf="day">
-                <button
-                  type="button"
-                  [class]="'days-btn ' + day.cssClass"
-                  [class.today]="day.isToday"
-                  (click)="onSelected(day)"
-                  [class.marked]="day.marked"
-                  [class.last-month-day]="day.isLastMonth"
-                  [class.next-month-day]="day.isNextMonth"
-                  [class.is-first]="day.isFirst"
-                  [class.is-last]="day.isLast"
-                  [class.on-selected]="isSelected(day.time)"
-                  [disabled]="day.disable">
+                <button type='button'
+                        [class]="'days-btn ' + day.cssClass"
+                        [class.today]="day.isToday"
+                        (click)="onSelected(day)"
+                        [class.marked]="day.marked"
+                        [class.last-month-day]="day.isLastMonth"
+                        [class.next-month-day]="day.isNextMonth"
+                        [class.is-first]="day.isFirst"
+                        [class.is-last]="day.isLast"
+                        [class.on-selected]="isSelected(day.time)"
+                        [disabled]="day.disable">
                   <p>{{ day.title }}</p>
                   <small *ngIf="day.subTitle">{{ day?.subTitle }}</small>
                 </button>
               </ng-container>
+
             </div>
           </ng-template>
         </div>
@@ -83,33 +79,31 @@ export const MONTH_VALUE_ACCESSOR: any = {
 export class MonthComponent implements ControlValueAccessor, AfterViewInit {
   @Input() componentMode = false;
   @Input()
-  public month!: CalendarMonth;
+  month: CalendarMonth;
   @Input()
-  public pickMode!: PickMode | string | undefined;
+  pickMode: PickMode;
   @Input()
-  public isSaveHistory!: boolean;
+  isSaveHistory: boolean;
   @Input()
-  public id!: any;
+  id: any;
   @Input()
-  public readonly = false;
+  readonly = false;
   @Input()
-  public color?: string = defaults.COLOR;
+  color: string = defaults.COLOR;
 
   @Output()
-  // eslint-disable-next-line @angular-eslint/no-output-native
-  public change: EventEmitter<CalendarDay[]> = new EventEmitter();
+  change: EventEmitter<CalendarDay[]> = new EventEmitter();
   @Output()
-  // eslint-disable-next-line @angular-eslint/no-output-native
-  public select: EventEmitter<CalendarDay> = new EventEmitter();
+  select: EventEmitter<CalendarDay> = new EventEmitter();
   @Output()
-  public selectStart: EventEmitter<CalendarDay> = new EventEmitter();
+  selectStart: EventEmitter<CalendarDay> = new EventEmitter();
   @Output()
-  public selectEnd: EventEmitter<CalendarDay> = new EventEmitter();
+  selectEnd: EventEmitter<CalendarDay> = new EventEmitter();
 
-  public _date: Array<CalendarDay | null> = [null, null];
+  _date: Array<CalendarDay | null> = [null, null];
   _isInit = false;
-  public _onChanged!: Function;
-  public _onTouched!: Function;
+  _onChanged: Function;
+  _onTouched: Function;
 
   readonly DAY_DATE_FORMAT = 'MMMM dd, yyyy';
 
@@ -141,8 +135,8 @@ export class MonthComponent implements ControlValueAccessor, AfterViewInit {
     this._onTouched = fn;
   }
 
-  trackByTime(item: CalendarOriginal) {
-    return item ? item.time : 0;
+  trackByTime(index: number, item: CalendarOriginal): number {
+    return item ? item.time : index;
   }
 
   isEndSelection(day: CalendarDay): boolean {
@@ -200,8 +194,6 @@ export class MonthComponent implements ControlValueAccessor, AfterViewInit {
     } else {
       return false;
     }
-
-    return false;
   }
 
   onSelected(item: CalendarDay): void {
@@ -210,7 +202,7 @@ export class MonthComponent implements ControlValueAccessor, AfterViewInit {
     this.select.emit(item);
     if (this.pickMode === pickModes.SINGLE) {
       this._date[0] = item;
-      this.change.emit(this._date as CalendarDay[]);
+      this.change.emit(this._date);
       return;
     }
 
@@ -240,7 +232,7 @@ export class MonthComponent implements ControlValueAccessor, AfterViewInit {
         this._date[1] = null;
       }
 
-      this.change.emit(this._date as CalendarDay[]);
+      this.change.emit(this._date);
       return;
     }
 
@@ -252,7 +244,7 @@ export class MonthComponent implements ControlValueAccessor, AfterViewInit {
       } else {
         this._date.splice(index, 1);
       }
-      this.change.emit((this._date as CalendarDay[]).filter(e => e !== null));
+      this.change.emit(this._date.filter(e => e !== null));
     }
   }
 }
