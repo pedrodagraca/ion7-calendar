@@ -1,4 +1,4 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA, ModuleWithProviders } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
@@ -29,12 +29,10 @@ export function calendarController(modalCtrl: ModalController, calSvc: CalendarS
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class CalendarModule {
-  static forRoot(defaultOptions: CalendarModalOptions = {}): ModuleWithProviders {
+  static forRoot(defaultOptions: CalendarModalOptions = {}) {
     return {
       ngModule: CalendarModule,
-      providers: [
-        { provide: DEFAULT_CALENDAR_OPTIONS, useValue: defaultOptions }
-      ]
+      providers: [{ provide: DEFAULT_CALENDAR_OPTIONS, useValue: defaultOptions }],
     };
   }
 }

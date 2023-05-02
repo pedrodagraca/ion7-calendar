@@ -1,16 +1,16 @@
 import {
-  Component,
-  ViewChild,
-  ElementRef,
-  ChangeDetectorRef,
-  Renderer2,
-  OnInit,
-  Input,
   AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
   HostBinding,
+  Input,
+  OnInit,
+  Renderer2,
+  ViewChild,
 } from '@angular/core';
-import { NavParams, ModalController, IonContent } from '@ionic/angular';
-import { CalendarDay, CalendarMonth, CalendarModalOptions } from '../calendar.model';
+import { IonContent, ModalController, NavParams } from '@ionic/angular';
+import { CalendarDay, CalendarModalOptions, CalendarMonth, InternalCalendarModalOptions } from '../calendar.model';
 import { CalendarService } from '../services/calendar.service';
 import * as moment from 'moment';
 import { pickModes } from '../config';
@@ -18,89 +18,97 @@ import { pickModes } from '../config';
 const NUM_OF_MONTHS_TO_CREATE = 3;
 
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'ion-calendar-modal',
   styleUrls: ['./calendar.modal.scss'],
   template: `
     <ion-header>
-      <ion-toolbar [color]="_d.color">
-          <ion-buttons slot="start">
-              <ion-button type='button' slot="icon-only" fill="clear" (click)="onCancel()">
-              <span *ngIf="_d.closeLabel !== '' && !_d.closeIcon">{{ _d.closeLabel }}</span>
-              <ion-icon *ngIf="_d.closeIcon" name="close"></ion-icon>
-            </ion-button>
-          </ion-buttons>
+      <ion-toolbar [color]="_d.color || ''">
+        <ion-buttons slot="start">
+          <ion-button type="button" slot="icon-only" fill="clear" (click)="onCancel()">
+            <span *ngIf="_d.closeLabel !== '' && !_d.closeIcon">{{ _d.closeLabel }}</span>
+            <ion-icon *ngIf="_d.closeIcon" name="close"></ion-icon>
+          </ion-button>
+        </ion-buttons>
 
-          <ion-title>{{ _d.title }}</ion-title>
+        <ion-title>{{ _d.title }}</ion-title>
 
-          <ion-buttons slot="end">
-            <ion-button type='button' *ngIf="!!_d.clearLabel" fill="clear" [disabled]="!canClear()" (click)="clear()">
-              <span *ngIf="_d.clearLabel !== ''">{{ _d.clearLabel }}</span>
-            </ion-button>
-            <ion-button type='button' slot="icon-only" *ngIf="!_d.autoDone" fill="clear" [disabled]="!canDone()" (click)="done()">
-              <span *ngIf="_d.doneLabel !== '' && !_d.doneIcon">{{ _d.doneLabel }}</span>
-              <ion-icon *ngIf="_d.doneIcon" name="checkmark"></ion-icon>
-            </ion-button>
-          </ion-buttons>
+        <ion-buttons slot="end">
+          <ion-button type="button" *ngIf="!!_d.clearLabel" fill="clear" [disabled]="!canClear()" (click)="clear()">
+            <span *ngIf="_d.clearLabel !== ''">{{ _d.clearLabel }}</span>
+          </ion-button>
+          <ion-button
+            type="button"
+            slot="icon-only"
+            *ngIf="!_d.autoDone"
+            fill="clear"
+            [disabled]="!canDone()"
+            (click)="done()">
+            <span *ngIf="_d.doneLabel !== '' && !_d.doneIcon">{{ _d.doneLabel }}</span>
+            <ion-icon *ngIf="_d.doneIcon" name="checkmark"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
 
       <ng-content select="[sub-header]"></ng-content>
 
-      <ion-calendar-week
-        [color]="_d.color"
-        [weekArray]="_d.weekdays"
-        [weekStart]="_d.weekStart">
+      <ion-calendar-week [color]="_d.color || ''" [weekArray]="_d.weekdays || []" [weekStart]="_d.weekStart || 1">
       </ion-calendar-week>
-
     </ion-header>
 
-    <ion-content (ionScroll)="onScroll($event)" class="calendar-page" [scrollEvents]="true"
-                 [ngClass]="{'multi-selection': _d.pickMode === 'multi'}">
-
+    <ion-content
+      (ionScroll)="onScroll($event)"
+      class="calendar-page"
+      [scrollEvents]="true"
+      [ngClass]="{ 'multi-selection': _d.pickMode === 'multi' }">
+      <ion-infinite-scroll threshold="25%" (ionInfinite)="previousMonth($event)" position="top">
+        <ion-infinite-scroll-content></ion-infinite-scroll-content>
+      </ion-infinite-scroll>
       <div #months>
         <ng-template ngFor let-month [ngForOf]="calendarMonths" [ngForTrackBy]="trackByIndex" let-i="index">
           <div class="month-box" [attr.id]="'month-' + i">
             <h4 class="text-center month-title">{{ _monthFormat(month.original.date) }}</h4>
-            <ion-calendar-month [month]="month"
-                                [pickMode]="_d.pickMode"
-                                [isSaveHistory]="_d.isSaveHistory"
-                                [id]="_d.id"
-                                [color]="_d.color"
-                                (change)="onChange($event)"
-                                [(ngModel)]="datesTemp">
+            <ion-calendar-month
+              [month]="month"
+              [pickMode]="_d.pickMode || ''"
+              [isSaveHistory]="_d.isSaveHistory || false"
+              [id]="_d.id"
+              [color]="_d.color || ''"
+              (change)="onChange($event)"
+              [(ngModel)]="datesTemp">
             </ion-calendar-month>
           </div>
         </ng-template>
-
       </div>
 
-      <ion-infinite-scroll threshold="25%" (ionInfinite)="nextMonth($event)">
+      <ion-infinite-scroll threshold="25%" (ionInfinite)="nextMonth($event)" position="bottom">
         <ion-infinite-scroll-content></ion-infinite-scroll-content>
       </ion-infinite-scroll>
-
     </ion-content>
   `,
 })
+// eslint-disable-next-line @angular-eslint/component-class-suffix
 export class CalendarModal implements OnInit, AfterViewInit {
   @ViewChild(IonContent)
-  content: IonContent;
+  public content!: IonContent;
   @ViewChild('months')
-  monthsEle: ElementRef;
+  public monthsEle!: ElementRef;
 
   @HostBinding('class.ion-page')
-  ionPage = true;
+  public ionPage = true;
 
   @Input()
-  options: CalendarModalOptions;
+  public options!: CalendarModalOptions;
 
-  datesTemp: Array<CalendarDay> = [null, null];
-  calendarMonths: Array<CalendarMonth>;
-  step: number;
-  showYearPicker: boolean;
-  year: number;
-  years: Array<number>;
+  public datesTemp: Array<CalendarDay> = [null, null];
+  public calendarMonths!: Array<CalendarMonth>;
+  public step!: number;
+  public showYearPicker!: boolean;
+  public year!: number;
+  public years!: Array<number>;
   _scrollLock = true;
-  _d: CalendarModalOptions;
-  actualFirstTime: number;
+  public _d!: InternalCalendarModalOptions;
+  public actualFirstTime!: number;
 
   constructor(
     private _renderer: Renderer2,
@@ -125,43 +133,41 @@ export class CalendarModal implements OnInit, AfterViewInit {
   init(): void {
     this._d = this.calSvc.safeOpt(this.options);
     this._d.showAdjacentMonthDay = false;
-    this.step = this._d.step;
+    this.step = this._d.step as number;
     if (this.step < this.calSvc.DEFAULT_STEP) {
       this.step = this.calSvc.DEFAULT_STEP;
     }
 
+    const dateToUse = this._d.defaultFrom;
+
     this.calendarMonths = this.calSvc.createMonthsByPeriod(
-      moment(this._d.from).valueOf(),
-      this.findInitMonthNumber(this._d.defaultScrollTo) + this.step,
+      moment(dateToUse).valueOf(),
+      this.findInitMonthNumber(this._d.defaultScrollTo, dateToUse) + this.step,
       this._d
     );
   }
 
   initDefaultDate(): void {
     const { pickMode, defaultDate, defaultDateRange, defaultDates } = this._d;
-    switch (pickMode) {
-      case pickModes.SINGLE:
-        if (defaultDate) {
-          this.datesTemp[0] = this.calSvc.createCalendarDay(this._getDayTime(defaultDate), this._d);
+    if (pickMode === pickModes.SINGLE) {
+      if (defaultDate) {
+        this.datesTemp[0] = this.calSvc.createCalendarDay(this._getDayTime(defaultDate), this._d);
+      }
+    } else if (pickMode === pickModes.RANGE) {
+      if (defaultDateRange) {
+        if (defaultDateRange.from) {
+          this.datesTemp[0] = this.calSvc.createCalendarDay(this._getDayTime(defaultDateRange.from), this._d);
         }
-        break;
-      case pickModes.RANGE:
-        if (defaultDateRange) {
-          if (defaultDateRange.from) {
-            this.datesTemp[0] = this.calSvc.createCalendarDay(this._getDayTime(defaultDateRange.from), this._d);
-          }
-          if (defaultDateRange.to) {
-            this.datesTemp[1] = this.calSvc.createCalendarDay(this._getDayTime(defaultDateRange.to), this._d);
-          }
+        if (defaultDateRange.to) {
+          this.datesTemp[1] = this.calSvc.createCalendarDay(this._getDayTime(defaultDateRange.to), this._d);
         }
-        break;
-      case pickModes.MULTI:
-        if (defaultDates && defaultDates.length) {
-          this.datesTemp = defaultDates.map(e => this.calSvc.createCalendarDay(this._getDayTime(e), this._d));
-        }
-        break;
-      default:
-        this.datesTemp = [null, null];
+      }
+    } else if (pickMode === pickModes.MULTI) {
+      if (defaultDates && defaultDates.length) {
+        this.datesTemp = defaultDates.map(e => this.calSvc.createCalendarDay(this._getDayTime(e), this._d));
+      }
+    } else {
+      this.datesTemp = [null, null];
     }
   }
 
@@ -203,18 +209,17 @@ export class CalendarModal implements OnInit, AfterViewInit {
     }
     const { pickMode, defaultEndDateToStartDate } = this._d;
 
-    switch (pickMode) {
-      case pickModes.SINGLE:
+    if (pickMode === pickModes.SINGLE) {
+      return !!(this.datesTemp[0] && this.datesTemp[0].time);
+    } else if (pickMode === pickModes.RANGE) {
+      if (defaultEndDateToStartDate) {
         return !!(this.datesTemp[0] && this.datesTemp[0].time);
-      case pickModes.RANGE:
-        if (defaultEndDateToStartDate) {
-          return !!(this.datesTemp[0] && this.datesTemp[0].time);
-        }
-        return !!(this.datesTemp[0] && this.datesTemp[1]) && !!(this.datesTemp[0].time && this.datesTemp[1].time);
-      case pickModes.MULTI:
-        return this.datesTemp.length > 0 && this.datesTemp.every(e => !!e && !!e.time);
-      default:
-        return false;
+      }
+      return !!(this.datesTemp[0] && this.datesTemp[1]) && !!(this.datesTemp[0].time && this.datesTemp[1].time);
+    } else if (pickMode === pickModes.MULTI) {
+      return this.datesTemp.length > 0 && this.datesTemp.every(e => !!e && !!e.time);
+    } else {
+      return false;
     }
   }
 
@@ -226,12 +231,28 @@ export class CalendarModal implements OnInit, AfterViewInit {
     return !!this.datesTemp[0];
   }
 
+  previousMonth(event: any) {
+    const len = this.calendarMonths.length;
+    const final = this.calendarMonths[0];
+    const nextTime = moment(final.original.time).subtract(1, 'M').valueOf();
+    const rangeEnd = this._d.to ? moment(this._d.to).subtract(1, 'M') : 0;
+
+    if (len <= 0 || (rangeEnd !== 0 && moment(final.original.time).isBefore(rangeEnd))) {
+      event.target.disabled = true;
+      return;
+    }
+
+    this.calendarMonths.unshift(
+      ...this.calSvc.createSubsctractMonthsByPeriod(nextTime, NUM_OF_MONTHS_TO_CREATE, this._d)
+    );
+    event.target.complete();
+    this.repaintDOM();
+  }
+
   nextMonth(event: any): void {
     const len = this.calendarMonths.length;
     const final = this.calendarMonths[len - 1];
-    const nextTime = moment(final.original.time)
-      .add(1, 'M')
-      .valueOf();
+    const nextTime = moment(final.original.time).add(1, 'M').valueOf();
     const rangeEnd = this._d.to ? moment(this._d.to).subtract(1, 'M') : 0;
 
     if (len <= 0 || (rangeEnd !== 0 && moment(final.original.time).isAfter(rangeEnd))) {
@@ -262,15 +283,17 @@ export class CalendarModal implements OnInit, AfterViewInit {
   }
 
   scrollToDate(date: Date): void {
-    const defaultDateIndex = this.findInitMonthNumber(date);
+    const dateToUse = this._d.defaultFrom;
+
+    const defaultDateIndex = this.findInitMonthNumber(date, dateToUse);
     const monthElement = this.monthsEle.nativeElement.children[`month-${defaultDateIndex}`];
-    const domElemReadyWaitTime = 300;
+    const domElemReadyWaitTime = 100;
 
     setTimeout(() => {
       const defaultDateMonth = monthElement ? monthElement.offsetTop : 0;
-
+      const height = monthElement ? monthElement.offsetHeight : 0;
       if (defaultDateIndex !== -1 && defaultDateMonth !== 0) {
-        this.content.scrollByPoint(0, defaultDateMonth, 128);
+        this.content.scrollToPoint(0, defaultDateMonth + height, 128);
       }
     }, domElemReadyWaitTime);
   }
@@ -281,7 +304,6 @@ export class CalendarModal implements OnInit, AfterViewInit {
 
   onScroll($event: any): void {
     if (!this._d.canBackwardsSelected) return;
-
     const { detail } = $event;
 
     if (detail.scrollTop <= 200 && detail.velocityY < 0 && this._scrollLock) {
@@ -317,8 +339,8 @@ export class CalendarModal implements OnInit, AfterViewInit {
     });
   }
 
-  findInitMonthNumber(date: Date): number {
-    let startDate = this.actualFirstTime ? moment(this.actualFirstTime) : moment(this._d.from);
+  findInitMonthNumber(date: Date, fromDate = this._d.from): number {
+    let startDate = this.actualFirstTime ? moment(this.actualFirstTime) : moment(fromDate);
     const defaultScrollTo = moment(date);
     const isAfter: boolean = defaultScrollTo.isAfter(startDate);
     if (!isAfter) return -1;
@@ -335,6 +357,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
   }
 
   _monthFormat(date: any): string {
+    // @ts-ignore
     return moment(date).format(this._d.monthFormat.replace(/y/g, 'Y'));
   }
 

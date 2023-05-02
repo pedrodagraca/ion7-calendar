@@ -1,10 +1,12 @@
 :host ion-select {
   max-width: unset; }
-  :host ion-select .select-icon > .select-icon-inner,
-  :host ion-select .select-text {
-    color: #fff !important; }
-  :host ion-select.select-ios {
-    max-width: unset; }
+
+:host ion-select .select-icon > .select-icon-inner,
+:host ion-select .select-text {
+  color: #fff !important; }
+
+:host ion-select.select-ios {
+  max-width: unset; }
 
 :host .calendar-page {
   background-color: #fbfbfb; }
