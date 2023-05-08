@@ -138,7 +138,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
       this.step = this.calSvc.DEFAULT_STEP;
     }
 
-    const dateToUse = this._d.defaultFrom;
+    const dateToUse = this.getDateToUse();
 
     this.calendarMonths = this.calSvc.createMonthsByPeriod(
       moment(dateToUse).valueOf(),
@@ -283,17 +283,15 @@ export class CalendarModal implements OnInit, AfterViewInit {
   }
 
   scrollToDate(date: Date): void {
-    const dateToUse = this._d.defaultFrom;
-
+    const dateToUse = this.getDateToUse();
     const defaultDateIndex = this.findInitMonthNumber(date, dateToUse);
     const monthElement = this.monthsEle.nativeElement.children[`month-${defaultDateIndex}`];
     const domElemReadyWaitTime = 100;
 
-    setTimeout(() => {
+    setTimeout(async() => {
       const defaultDateMonth = monthElement ? monthElement.offsetTop : 0;
-      const height = monthElement ? monthElement.offsetHeight : 0;
       if (defaultDateIndex !== -1 && defaultDateMonth !== 0) {
-        this.content.scrollToPoint(0, defaultDateMonth + height, 128);
+        await this.content.scrollToPoint(0, defaultDateMonth, 50);
       }
     }, domElemReadyWaitTime);
   }
@@ -363,5 +361,9 @@ export class CalendarModal implements OnInit, AfterViewInit {
 
   trackByIndex(index: number, momentDate: CalendarMonth): number {
     return momentDate.original ? momentDate.original.time : index;
+  }
+
+  private getDateToUse() {
+    return this._d.defaultDate ? moment(this._d.defaultDate).subtract(NUM_OF_MONTHS_TO_CREATE, 'months').toDate() : this._d.defaultFrom;
   }
 }
