@@ -84,7 +84,7 @@ export class CalendarService {
       showYearPicker,
       defaultTitle,
       defaultSubtitle,
-      defaultScrollTo: calendarOptions.defaultScrollTo || from,
+      defaultScrollTo: calendarOptions.defaultScrollTo || calendarOptions.defaultDate,
       defaultDate: calendarOptions.defaultDate || null,
       defaultDates: calendarOptions.defaultDates || null,
       defaultDateRange: calendarOptions.defaultDateRange || null,

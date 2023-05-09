@@ -225,6 +225,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
 
   clear() {
     this.datesTemp = [null, null];
+    this.modalCtrl.dismiss(null, 'clear');
   }
 
   canClear() {
@@ -289,8 +290,12 @@ export class CalendarModal implements OnInit, AfterViewInit {
     const domElemReadyWaitTime = 100;
 
     setTimeout(async() => {
-      const defaultDateMonth = monthElement ? monthElement.offsetTop : 0;
+      let defaultDateMonth = monthElement ? monthElement.offsetTop : 0;
       if (defaultDateIndex !== -1 && defaultDateMonth !== 0) {
+        if (defaultDateIndex === 1) {
+          const height = monthElement ? monthElement.offsetHeight : 0;
+          defaultDateMonth += height;
+        }
         await this.content.scrollToPoint(0, defaultDateMonth, 50);
       }
     }, domElemReadyWaitTime);
@@ -364,6 +369,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
   }
 
   private getDateToUse() {
-    return this._d.defaultDate ? moment(this._d.defaultDate).subtract(NUM_OF_MONTHS_TO_CREATE, 'months').toDate() : this._d.defaultFrom;
+    const date = this._d.defaultDate || this._d.defaultScrollTo;
+    return date ? moment(date).subtract(NUM_OF_MONTHS_TO_CREATE, 'months').toDate() : this._d.defaultFrom;
   }
 }
