@@ -225,6 +225,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
 
   clear() {
     this.datesTemp = [null, null];
+    this.modalCtrl.dismiss(null, 'clear');
   }
 
   canClear() {
