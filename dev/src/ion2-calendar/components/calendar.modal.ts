@@ -289,14 +289,14 @@ export class CalendarModal implements OnInit, AfterViewInit {
     const monthElement = this.monthsEle.nativeElement.children[`month-${defaultDateIndex}`];
     const domElemReadyWaitTime = 100;
 
-    setTimeout(async() => {
+    setTimeout(() => {
       let defaultDateMonth = monthElement ? monthElement.offsetTop : 0;
       if (defaultDateIndex !== -1 && defaultDateMonth !== 0) {
         if (defaultDateIndex === 1) {
           const height = monthElement ? monthElement.offsetHeight : 0;
           defaultDateMonth += height;
         }
-        await this.content.scrollToPoint(0, defaultDateMonth, 50);
+        this.content.scrollToPoint(0, defaultDateMonth, 50);
       }
     }, domElemReadyWaitTime);
   }
