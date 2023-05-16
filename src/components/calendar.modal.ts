@@ -287,7 +287,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
     const dateToUse = this.getDateToUse();
     const defaultDateIndex = this.findInitMonthNumber(date, dateToUse);
     const monthElement = this.monthsEle.nativeElement.children[`month-${defaultDateIndex}`];
-    const domElemReadyWaitTime = 100;
+    const domElemReadyWaitTime = 300;
 
     setTimeout(() => {
       let defaultDateMonth = monthElement ? monthElement.offsetTop : 0;
