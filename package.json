@@ -62,7 +62,7 @@
   "author": "HsuanLee",
   "license": "MIT",
   "peerDependencies": {
-    "moment": "2.19.3"
+    "moment": ">=2.19.3"
   },
   "$schema": "./node_modules/ng-packagr/package.schema.json",
   "ngPackage": {
