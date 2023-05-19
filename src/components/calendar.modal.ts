@@ -287,7 +287,16 @@ export class CalendarModal implements OnInit, AfterViewInit {
   async scrollToDate(date: Date): Promise<void> {
     const dateToUse = this.getDateToUse();
     const defaultDateIndex = this.findInitMonthNumber(date, dateToUse);
-    const monthElement = this.monthsEle.nativeElement.children[`month-${defaultDateIndex}`];
+    let monthElement = this.monthsEle.nativeElement.children[`month-${defaultDateIndex}`];
+    let tries = 10_000;
+    while (!monthElement) {
+      monthElement = this.monthsEle.nativeElement.children[`month-${defaultDateIndex}`];
+      tries--;
+
+      if (tries === 0) {
+        console.error('Not element found')
+      }
+    }
     let defaultDateMonth = monthElement ? monthElement.offsetTop : 0;
 
     if (defaultDateIndex !== -1) {
