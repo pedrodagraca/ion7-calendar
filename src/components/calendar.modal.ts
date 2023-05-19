@@ -125,10 +125,10 @@ export class CalendarModal implements OnInit, AfterViewInit {
     this.initDefaultDate();
   }
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit(): Promise<void> {
     this.findCssClass();
     if (this._d.canBackwardsSelected) this.backwardsMonth();
-    this.scrollToDefaultDate();
+    await this.scrollToDefaultDate();
   }
 
   init(): void {
@@ -284,48 +284,24 @@ export class CalendarModal implements OnInit, AfterViewInit {
     this.repaintDOM();
   }
 
-  scrollToDate(date: Date): void {
+  async scrollToDate(date: Date): Promise<void> {
     const dateToUse = this.getDateToUse();
     const defaultDateIndex = this.findInitMonthNumber(date, dateToUse);
     const monthElement = this.monthsEle.nativeElement.children[`month-${defaultDateIndex}`];
-    const domElemReadyWaitTime = 30;
+    let defaultDateMonth = monthElement ? monthElement.offsetTop : 0;
 
-    const waitToScroll = (timeout = 500) => {
-      const start = Date.now();
-      let scrolled = false;
-      let now = 0;
-      let interval = setInterval(() => {
-        let defaultDateMonth = monthElement ? monthElement.offsetTop : 0;
-        if (defaultDateIndex !== -1 && defaultDateMonth !== 0) {
-          if (defaultDateIndex === 1) {
-            const height = monthElement ? monthElement.offsetHeight : 0;
-            defaultDateMonth += height;
-          }
+    if (defaultDateIndex !== -1) {
+      if (defaultDateIndex === 1) {
+        const height = monthElement ? monthElement.offsetHeight : 0;
+        defaultDateMonth += height;
+      }
 
-          this.content.scrollToPoint(0, defaultDateMonth, 0).then((x) => {
-            scrolled = true;
-          });
-        }
-
-        if (scrolled) {
-          clearInterval(interval);
-        }
-
-        now = Date.now();
-
-        if (now - start >= timeout) {
-          console.error('Could not scroll to element');
-          clearInterval(interval);
-        }
-      }, domElemReadyWaitTime);
-
-    };
-
-    waitToScroll(1000)
+      return this.content.scrollToPoint(0, defaultDateMonth, 0);
+    }
   }
 
-  scrollToDefaultDate(): void {
-    this.scrollToDate(this._d.defaultScrollTo);
+  async scrollToDefaultDate(): Promise<void> {
+    await this.scrollToDate(this._d.defaultScrollTo);
   }
 
   onScroll($event: any): void {

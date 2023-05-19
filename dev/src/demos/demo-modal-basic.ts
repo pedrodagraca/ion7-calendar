@@ -12,7 +12,7 @@ import { CalendarModal, CalendarModalOptions } from '../ion2-calendar';
   `,
 })
 export class DemoModalBasicComponent {
-  date: Date = new Date(2021, 1, 1);
+  date: Date = new Date();
 
   constructor(public modalCtrl: ModalController) {}
 
