@@ -61,9 +61,6 @@ const NUM_OF_MONTHS_TO_CREATE = 3;
       class="calendar-page"
       [scrollEvents]="true"
       [ngClass]="{ 'multi-selection': _d.pickMode === 'multi' }">
-      <ion-infinite-scroll threshold="25%" (ionInfinite)="previousMonth($event)" position="top">
-        <ion-infinite-scroll-content></ion-infinite-scroll-content>
-      </ion-infinite-scroll>
       <div #months>
         <ng-template ngFor let-month [ngForOf]="calendarMonths" [ngForTrackBy]="trackByIndex" let-i="index">
           <div class="month-box {{ scrolled ? '' : 'month-box-hide' }}" [attr.id]="'month-' + i">
@@ -119,7 +116,8 @@ export class CalendarModal implements OnInit, AfterViewInit {
     public modalCtrl: ModalController,
     public ref: ChangeDetectorRef,
     public calSvc: CalendarService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.init();
@@ -150,7 +148,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
   }
 
   initDefaultDate(): void {
-    const { pickMode, defaultDate, defaultDateRange, defaultDates } = this._d;
+    const {pickMode, defaultDate, defaultDateRange, defaultDates} = this._d;
     if (pickMode === pickModes.SINGLE) {
       if (defaultDate) {
         this.datesTemp[0] = this.calSvc.createCalendarDay(this._getDayTime(defaultDate), this._d);
@@ -175,7 +173,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
   }
 
   findCssClass(): void {
-    const { cssClass } = this._d;
+    const {cssClass} = this._d;
     if (cssClass) {
       cssClass.split(' ').forEach((_class: string) => {
         if (_class.trim() !== '') this._renderer.addClass(this._elementRef.nativeElement, _class);
@@ -184,7 +182,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
   }
 
   onChange(data: any): void {
-    const { pickMode, autoDone } = this._d;
+    const {pickMode, autoDone} = this._d;
 
     this.datesTemp = data;
     this.ref.detectChanges();
@@ -201,7 +199,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
   }
 
   done(): void {
-    const { pickMode } = this._d;
+    const {pickMode} = this._d;
 
     this.modalCtrl.dismiss(this.calSvc.wrapResult(this.datesTemp, pickMode), 'done');
   }
@@ -210,7 +208,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
     if (!Array.isArray(this.datesTemp)) {
       return false;
     }
-    const { pickMode, defaultEndDateToStartDate } = this._d;
+    const {pickMode, defaultEndDateToStartDate} = this._d;
 
     if (pickMode === pickModes.SINGLE) {
       return !!(this.datesTemp[0] && this.datesTemp[0].time);
@@ -234,24 +232,6 @@ export class CalendarModal implements OnInit, AfterViewInit {
 
   canClear() {
     return !!this.datesTemp[0];
-  }
-
-  previousMonth(event: any) {
-    const len = this.calendarMonths.length;
-    const final = this.calendarMonths[0];
-    const nextTime = moment(final.original.time).subtract(1, 'M').valueOf();
-    const rangeEnd = this._d.to ? moment(this._d.to).subtract(1, 'M') : 0;
-
-    if (len <= 0 || (rangeEnd !== 0 && moment(final.original.time).isBefore(rangeEnd))) {
-      event.target.disabled = true;
-      return;
-    }
-
-    this.calendarMonths.unshift(
-      ...this.calSvc.createSubsctractMonthsByPeriod(nextTime, NUM_OF_MONTHS_TO_CREATE, this._d)
-    );
-    event.target.complete();
-    this.repaintDOM();
   }
 
   nextMonth(event: any): void {
@@ -296,8 +276,6 @@ export class CalendarModal implements OnInit, AfterViewInit {
       let defaultDateMonth = monthElement ? monthElement.offsetTop : 0;
 
       if (defaultDateIndex !== -1 && defaultDateMonth !== 0) {
-        console.log(defaultDateMonth);
-
         await this.content.scrollToPoint(0, defaultDateMonth, 50);
       }
       this.scrolled = true;
@@ -331,24 +309,16 @@ export class CalendarModal implements OnInit, AfterViewInit {
     await this.scrollToDate(this._d.defaultScrollTo);
   }
 
-  onScroll($event: any): void {
+  async onScroll($event: any): Promise<void> {
     if (!this._d.canBackwardsSelected) return;
-    const { detail } = $event;
+    const {detail} = $event;
 
-    if (detail.scrollTop <= 200 && detail.velocityY < 0 && this._scrollLock) {
-      this.content.getScrollElement().then(scrollElem => {
-        this._scrollLock = !1;
-
-        const heightBeforeMonthPrepend = scrollElem.scrollHeight;
-        this.backwardsMonth();
-        setTimeout(() => {
-          const heightAfterMonthPrepend = scrollElem.scrollHeight;
-
-          this.content.scrollByPoint(0, heightAfterMonthPrepend - heightBeforeMonthPrepend, 0).then(() => {
-            this._scrollLock = !0;
-          });
-        }, 180);
-      });
+    const scrollElem = await this.content.getScrollElement();
+    const height = scrollElem.offsetHeight * 2;
+    if (detail.scrollTop <= height && detail.velocityY < 0 && this._scrollLock) {
+      this._scrollLock = !1;
+      this.backwardsMonth();
+      this._scrollLock = !0;
     }
   }
 
@@ -396,6 +366,6 @@ export class CalendarModal implements OnInit, AfterViewInit {
 
   private getDateToUse() {
     const date = this._d.defaultDate || this._d.defaultScrollTo;
-    return date ? moment(date).subtract(NUM_OF_MONTHS_TO_CREATE, 'months').toDate() : this._d.defaultFrom;
+    return date ? moment(date).subtract(1, 'months').toDate() : this._d.defaultFrom;
   }
 }
