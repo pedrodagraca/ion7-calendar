@@ -57,7 +57,7 @@ const NUM_OF_MONTHS_TO_CREATE = 3;
     </ion-header>
 
     <ion-content
-      (ionScroll)="onScroll($event)"
+      (ionScrollEnd)="onScrollEnd()"
       class="calendar-page"
       [scrollEvents]="true"
       [ngClass]="{ 'multi-selection': _d.pickMode === 'multi' }">
@@ -105,7 +105,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
   public year!: number;
   public years!: Array<number>;
   public scrolled = false;
-  _scrollLock = true;
+  _scrollLock = false;
   public _d!: InternalCalendarModalOptions;
   public actualFirstTime!: number;
 
@@ -309,17 +309,26 @@ export class CalendarModal implements OnInit, AfterViewInit {
     await this.scrollToDate(this._d.defaultScrollTo);
   }
 
-  async onScroll($event: any): Promise<void> {
-    if (!this._d.canBackwardsSelected) return;
-    const {detail} = $event;
-
-    const scrollElem = await this.content.getScrollElement();
-    const height = scrollElem.offsetHeight * 2;
-    if (detail.scrollTop <= height && detail.velocityY < 0 && this._scrollLock) {
-      this._scrollLock = !1;
-      this.backwardsMonth();
-      this._scrollLock = !0;
+  onScrollEnd(): void {
+    if (this._scrollLock ) {
+      return;
     }
+    const threshold = 100;
+    this.content.getScrollElement().then(scrollElem => {
+      const isOnTopOfScreen = scrollElem.scrollTop < threshold;
+      if (!isOnTopOfScreen) {
+        return;
+      }
+      this._scrollLock = true;
+      const heightBeforeMonthPrepend = scrollElem.scrollHeight;
+      this.backwardsMonth();
+      setTimeout(() => {
+        const heightAfterMonthPrepend = scrollElem.scrollHeight;
+        this.content.scrollByPoint(0, heightAfterMonthPrepend - heightBeforeMonthPrepend, 0).then(() => {
+          this._scrollLock = false;
+        });
+      });
+    });
   }
 
   /**
