@@ -63,7 +63,7 @@ const NUM_OF_MONTHS_TO_CREATE = 6;
       [ngClass]="{ 'multi-selection': _d.pickMode === 'multi' }">
       <div #months>
         <ng-template ngFor let-month [ngForOf]="calendarMonths" [ngForTrackBy]="trackByIndex" let-i="index">
-          <div class="month-box {{ scrolled ? '' : 'month-box-hide' }}" [attr.id]="'month-' + i">
+          <div class="month-box" [attr.data-month]="_monthFormatYYYYMM(month.original.date)" [attr.id]="'month-' + i">
             <h4 class="text-center month-title">{{ _monthFormat(month.original.date) }}</h4>
             <ion-calendar-month
               [month]="month"
@@ -77,6 +77,7 @@ const NUM_OF_MONTHS_TO_CREATE = 6;
           </div>
         </ng-template>
       </div>
+
 
       <ion-infinite-scroll threshold="25%" (ionInfinite)="nextMonth($event)" position="bottom">
         <ion-infinite-scroll-content></ion-infinite-scroll-content>
@@ -141,7 +142,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
     const dateToUse = this.getDateToUse();
 
     this.calendarMonths = this.calSvc.createMonthsByPeriod(
-      moment(dateToUse).valueOf(),
+      moment(dateToUse).startOf('month').subtract(2, 'months').valueOf(),
       this.findInitMonthNumber(this._d.defaultScrollTo, dateToUse) + this.step,
       this._d
     );
@@ -269,23 +270,24 @@ export class CalendarModal implements OnInit, AfterViewInit {
 
   async scrollToDate(date: Date): Promise<void> {
     const dateToUse = this.getDateToUse();
-    const defaultDateIndex = this.findInitMonthNumber(date, dateToUse);
-    let monthElement = this.monthsEle.nativeElement.children[`month-${defaultDateIndex}`];
-    try {
-      await this.waitForElementTop(monthElement);
-      let defaultDateMonth = monthElement ? monthElement.offsetTop : 0;
+    const monthSelector = moment(dateToUse).format('YYYY-MM');
+    const element = document.querySelector(`[data-month="${monthSelector}"]`) as HTMLElement;
+    if (!element) { return; }
 
-      if (defaultDateIndex !== -1 && defaultDateMonth !== 0) {
-        await this.content.scrollToPoint(0, defaultDateMonth, 50);
-      }
-      this.scrolled = true;
+    try {
+      this._scrollLock = true;
+      await this.waitForElementTop(element);
+      const offsetMargin = 10;
+      const defaultMonthScrollPosition = element.offsetTop - offsetMargin;
+      await this.content.scrollToPoint(0, defaultMonthScrollPosition, 50);
+      this._scrollLock = false;
     } catch (e) {
-      this.scrolled = true;
-      console.error(`Could not scroll to month with index: ${defaultDateIndex}`);
+      this._scrollLock = false;
+      console.error(`Could not scroll to month with index: ${monthSelector}`);
     }
   }
 
-  private waitForElementTop(element: any, timeout = 2000) {
+  private async waitForElementTop(element: any, timeout = 2000) {
     const start = Date.now();
     let now = 0;
 
@@ -369,12 +371,17 @@ export class CalendarModal implements OnInit, AfterViewInit {
     return moment(date).format(this._d.monthFormat.replace(/y/g, 'Y'));
   }
 
+  _monthFormatYYYYMM(date: any): string {
+    // @ts-ignore
+    return moment(date).format('YYYY-MM');
+  }
+
   trackByIndex(index: number, momentDate: CalendarMonth): number {
     return momentDate.original ? momentDate.original.time : index;
   }
 
   private getDateToUse() {
     const date = this._d.defaultDate || this._d.defaultScrollTo;
-    return date ? moment(date).subtract(1, 'months').toDate() : this._d.defaultFrom;
+    return date ? moment(date).toDate() : this._d.defaultFrom;
   }
 }
