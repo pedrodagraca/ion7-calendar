@@ -63,7 +63,10 @@ const NUM_OF_MONTHS_TO_CREATE = 6;
       [ngClass]="{ 'multi-selection': _d.pickMode === 'multi' }">
       <div #months>
         <ng-template ngFor let-month [ngForOf]="calendarMonths" [ngForTrackBy]="trackByIndex" let-i="index">
-          <div class="month-box" [attr.data-month]="_monthFormatYYYYMM(month.original.date)" [attr.id]="'month-' + i">
+          <div class="month-box"
+               [class.month-invisible]="!scrolledToInitialPosition"
+               [attr.data-month]="_monthFormatYYYYMM(month.original.date)"
+               [attr.id]="'month-' + i">
             <h4 class="text-center month-title">{{ _monthFormat(month.original.date) }}</h4>
             <ion-calendar-month
               [month]="month"
@@ -77,7 +80,6 @@ const NUM_OF_MONTHS_TO_CREATE = 6;
           </div>
         </ng-template>
       </div>
-
 
       <ion-infinite-scroll threshold="25%" (ionInfinite)="nextMonth($event)" position="bottom">
         <ion-infinite-scroll-content></ion-infinite-scroll-content>
@@ -105,7 +107,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
   public showYearPicker!: boolean;
   public year!: number;
   public years!: Array<number>;
-  public scrolled = false;
+  public scrolledToInitialPosition = false;
   _scrollLock = false;
   public _d!: InternalCalendarModalOptions;
   public actualFirstTime!: number;
@@ -279,10 +281,12 @@ export class CalendarModal implements OnInit, AfterViewInit {
       await this.waitForElementTop(element);
       const offsetMargin = 10;
       const defaultMonthScrollPosition = element.offsetTop - offsetMargin;
-      await this.content.scrollToPoint(0, defaultMonthScrollPosition, 50);
+      await this.content.scrollToPoint(0, defaultMonthScrollPosition, 10);
       this._scrollLock = false;
+      this.scrolledToInitialPosition = true;
     } catch (e) {
       this._scrollLock = false;
+      this.scrolledToInitialPosition = true;
       console.error(`Could not scroll to month with index: ${monthSelector}`);
     }
   }
