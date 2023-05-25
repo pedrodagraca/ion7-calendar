@@ -57,7 +57,7 @@ const NUM_OF_MONTHS_TO_CREATE = 6;
     </ion-header>
 
     <ion-content
-      (ionScrollEnd)="onScrollEnd()"
+      (ionScroll)="onScroll($event)"
       class="calendar-page"
       [scrollEvents]="true"
       [ngClass]="{ 'multi-selection': _d.pickMode === 'multi' }">
@@ -111,6 +111,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
   _scrollLock = false;
   public _d!: InternalCalendarModalOptions;
   public actualFirstTime!: number;
+  public prependingMonths = false;
 
   constructor(
     private _renderer: Renderer2,
@@ -129,7 +130,9 @@ export class CalendarModal implements OnInit, AfterViewInit {
 
   async ngAfterViewInit(): Promise<void> {
     this.findCssClass();
-    if (this._d.canBackwardsSelected) this.backwardsMonth();
+    if (this._d.canBackwardsSelected) {
+      await this.backwardsMonth();
+    }
     await this.scrollToDefaultDate();
   }
 
@@ -238,6 +241,10 @@ export class CalendarModal implements OnInit, AfterViewInit {
   }
 
   nextMonth(event: any): void {
+    if (this.prependingMonths) {
+      return;
+    }
+
     const len = this.calendarMonths.length;
     const final = this.calendarMonths[len - 1];
     const nextTime = moment(final.original.time).add(1, 'M').valueOf();
@@ -253,7 +260,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
     this.repaintDOM();
   }
 
-  backwardsMonth(): void {
+  async backwardsMonth() {
     const first = this.calendarMonths[0];
 
     if (first.original.time <= 0) {
@@ -267,7 +274,7 @@ export class CalendarModal implements OnInit, AfterViewInit {
 
     this.calendarMonths.unshift(...this.calSvc.createMonthsByPeriod(firstTime, NUM_OF_MONTHS_TO_CREATE, this._d));
     this.ref.detectChanges();
-    this.repaintDOM();
+    await this.repaintDOM();
   }
 
   async scrollToDate(date: Date): Promise<void> {
@@ -315,26 +322,32 @@ export class CalendarModal implements OnInit, AfterViewInit {
     await this.scrollToDate(this._d.defaultScrollTo);
   }
 
-  onScrollEnd(): void {
-    if (this._scrollLock ) {
+  async onScroll($event): Promise<void> {
+    if (this._scrollLock || this.prependingMonths) {
       return;
     }
+
     const threshold = 100;
-    this.content.getScrollElement().then(scrollElem => {
-      const isOnTopOfScreen = scrollElem.scrollTop < threshold;
-      if (!isOnTopOfScreen) {
-        return;
-      }
-      this._scrollLock = true;
-      const heightBeforeMonthPrepend = scrollElem.scrollHeight;
-      this.backwardsMonth();
-      setTimeout(() => {
-        const heightAfterMonthPrepend = scrollElem.scrollHeight;
-        this.content.scrollByPoint(0, heightAfterMonthPrepend - heightBeforeMonthPrepend, 0).then(() => {
-          this._scrollLock = false;
-        });
-      });
-    });
+    const scrollElem = await this.content.getScrollElement();
+    const currentY = $event.detail.scrollTop;
+    const isOnTopOfScreen = currentY < threshold;
+    if (!isOnTopOfScreen) {
+      return;
+    }
+    this.prependingMonths = true;
+    this._scrollLock = true;
+    const heightBeforeMonthPrepend = scrollElem.scrollHeight;
+    await this.backwardsMonth();
+
+    const heightAfterMonthPrepend = scrollElem.scrollHeight;
+    const heightAdded = heightAfterMonthPrepend - heightBeforeMonthPrepend;
+    const scrollPositionToGo =  heightAdded + 100; // NOTE: idk why 100 works
+
+    await this.content.scrollToPoint(0, scrollPositionToGo, 1);
+    this._scrollLock = false;
+    setTimeout(() => {
+      this.prependingMonths = false;
+    }, 500);
   }
 
   /**
