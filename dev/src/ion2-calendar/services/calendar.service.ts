@@ -25,7 +25,7 @@ export class CalendarService {
   }
 
   get DEFAULT_STEP() {
-    return 1;
+    return 6;
   }
 
   safeOpt(calendarOptions: any = {}): InternalCalendarModalOptions {

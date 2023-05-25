@@ -15,7 +15,7 @@ import {CalendarService} from '../services/calendar.service';
 import * as moment from 'moment';
 import {pickModes} from '../config';
 
-const NUM_OF_MONTHS_TO_CREATE = 3;
+const NUM_OF_MONTHS_TO_CREATE = 6;
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector

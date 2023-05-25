@@ -21,7 +21,6 @@ export class DemoModalBasicComponent {
       title: 'BASIC',
       defaultScrollTo: this.date,
       defaultDate: this.date,
-      canBackwardsSelected: true,
     };
 
     const myCalendar = await this.modalCtrl.create({
