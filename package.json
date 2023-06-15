@@ -26,7 +26,7 @@
     "url": "https://github.com/DominikRo/ion7-calendar"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/DominikRo"
+    "@DominikRo:registry": "https://npm.pkg.github.com"
   },
   "devDependencies": {
     "@angular/common": "15.2.8",
