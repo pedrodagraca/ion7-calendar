@@ -1,6 +1,7 @@
 # 📅 ion7-calendar
 
 Forked solved issues:
+- Support for Angular version <= 15.x
 - Allow user to select date before today on Ionic > 5
 - Render the last two months and make lazy load of previous months
 
