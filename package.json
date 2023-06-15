@@ -1,5 +1,5 @@
 {
-  "name": "ion7-calendar",
+  "name": "@DominikRo/ion7-calendar",
   "version": "3.6.20",
   "description": "A date picker component for ionic2 ",
   "main": "./dist/index.js",
