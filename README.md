@@ -1,4 +1,4 @@
-# 📅 ion2-calendar
+# 📅 ion7-calendar
 
 Forked solved issues:
 - Allow user to select date before today on Ionic > 5
