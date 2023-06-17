@@ -1,10 +1,6 @@
 # 📅 ion7-calendar
 
-Forked solved issues:
-
-- Support for Angular version <= 15.x
-- Allow user to select date before today on Ionic > 5
-- Render the last two months and make lazy load of previous months
+INFO: This is a forked package from ion2-calendar. Since ion2-calendar does not support Angular versions >= 16, I want to maintain this package to keep it up to date with the latest versions of angular and ionic.
 
 [![npm version](https://badge.fury.io/js/ion7-calendar.svg)](https://badge.fury.io/js/ion7-calendar)
 [![MIT License][license-image]][license-url]
@@ -14,9 +10,6 @@ Forked solved issues:
 <p align="center">
     <img width="800" src="https://github.com/HsuanXyz/hsuanxyz.github.io/blob/master/assets/ion2-calendar/calendar-1.png?raw=true">
 </p>
-
-> English is not my native language; please excuse typing errors.
-> [中文文档](https://github.com/HsuanXyz/ion2-calendar/blob/master/README-CN.md)
 
 - Support date range.
 - Support multi date.
@@ -28,8 +21,11 @@ Forked solved issues:
 
 # Support
 
-- ionic-angular `^3.0.0` [2.x](https://github.com/HsuanXyz/ion2-calendar/tree/v2)
-- @ionic/angular `4.0.0`
+| npm Package Version | Angular Version     | Ionic Version     |
+| ------------------- | ------------------- | ----------------- |
+| from 3.6.25         | 12 <= Version <= 16 | 5 <= Version <= 7 |
+
+Please send me a message if you notice that the support differs from the table.
 
 # Demo
 
