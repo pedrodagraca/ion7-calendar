@@ -1,15 +1,12 @@
 # 📅 ion7-calendar
 
 Forked solved issues:
+
 - Support for Angular version <= 15.x
 - Allow user to select date before today on Ionic > 5
 - Render the last two months and make lazy load of previous months
 
-
-[![Build Status](https://travis-ci.org/HsuanXyz/ion2-calendar.svg?branch=master)](https://travis-ci.org/HsuanXyz/ion2-calendar)
-[![Dependency Status](https://david-dm.org/HsuanXyz/ion2-calendar.svg)](https://david-dm.org/HsuanXyz/ion2-calendar)
 [![NPM version][npm-image]][npm-url]
-[![Downloads][downloads-image]][downloads-url]
 [![MIT License][license-image]][license-url]
 
 ![date](https://github.com/HsuanXyz/hsuanxyz.github.io/blob/master/assets/ion2-calendar/calendar.png?raw=true)
@@ -104,10 +101,12 @@ export class AppModule {}
 ### Basic
 
 ```html
-<ion-calendar [(ngModel)]="date"
-              (change)="onChange($event)"
-              [type]="type"
-              [format]="'YYYY-MM-DD'">
+<ion-calendar
+  [(ngModel)]="date"
+  (change)="onChange($event)"
+  [type]="type"
+  [format]="'YYYY-MM-DD'"
+>
 </ion-calendar>
 ```
 
@@ -133,10 +132,12 @@ export class HomePage {
 ### Date range
 
 ```html
-<ion-calendar [(ngModel)]="dateRange"
-              [options]="optionsRange"
-              [type]="type"
-              [format]="'YYYY-MM-DD'">
+<ion-calendar
+  [(ngModel)]="dateRange"
+  [options]="optionsRange"
+  [type]="type"
+  [format]="'YYYY-MM-DD'"
+>
 </ion-calendar>
 ```
 
@@ -163,10 +164,12 @@ export class HomePage {
 ### Multi Date
 
 ```html
-<ion-calendar [(ngModel)]="dateMulti"
-              [options]="optionsMulti"
-              [type]="type"
-              [format]="'YYYY-MM-DD'">
+<ion-calendar
+  [(ngModel)]="dateMulti"
+  [options]="optionsMulti"
+  [type]="type"
+  [format]="'YYYY-MM-DD'"
+>
 </ion-calendar>
 ```
 
@@ -235,30 +238,30 @@ export class HomePage {
 Import ion2-calendar in component controller.
 
 ```typescript
-import { Component } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component } from "@angular/core";
+import { ModalController } from "@ionic/angular";
 import {
   CalendarModal,
   CalendarModalOptions,
   DayConfig,
-  CalendarResult
-} from 'ion2-calendar';
+  CalendarResult,
+} from "ion2-calendar";
 
 @Component({
-  selector: 'page-home',
-  templateUrl: 'home.html'
+  selector: "page-home",
+  templateUrl: "home.html",
 })
 export class HomePage {
   constructor(public modalCtrl: ModalController) {}
 
   openCalendar() {
     const options: CalendarModalOptions = {
-      title: 'BASIC'
+      title: "BASIC",
     };
 
     const myCalendar = await this.modalCtrl.create({
       component: CalendarModal,
-      componentProps: { options }
+      componentProps: { options },
     });
 
     myCalendar.present();
@@ -437,7 +440,7 @@ openCalendar() {
 | disableWeeks              | Array<number>            | `[]`                                  | week to be disabled (0-6)                                  |
 | closeLabel                | string                   | `CANCEL`                              | cancel button label                                        |
 | doneLabel                 | string                   | `DONE`                                | done button label                                          |
-| clearLabel                | string                   |  null                                 | clear button label                                         |
+| clearLabel                | string                   | null                                  | clear button label                                         |
 | closeIcon                 | boolean                  | `false`                               | show cancel button icon                                    |
 | doneIcon                  | boolean                  | `false`                               | show done button icon                                      |
 | monthFormat               | string                   | `'MMM YYYY'`                          | month title format                                         |
@@ -488,9 +491,7 @@ openCalendar() {
 
 ## Thanks for reading
 
-[npm-url]: https://www.npmjs.com/package/ion2-calendar
+[npm-url]: https://www.npmjs.com/package/@dominikro/ion7-calendar
 [npm-image]: https://img.shields.io/npm/v/ion2-calendar.svg
-[downloads-image]: https://img.shields.io/npm/dm/ion2-calendar.svg
-[downloads-url]: http://badge.fury.io/js/ion2-calendar
 [license-image]: http://img.shields.io/badge/license-MIT-blue.svg?style=flat
 [license-url]: LICENSE
