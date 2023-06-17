@@ -6,7 +6,7 @@ Forked solved issues:
 - Allow user to select date before today on Ionic > 5
 - Render the last two months and make lazy load of previous months
 
-[![NPM version][npm-image]][npm-url]
+[![npm version](https://badge.fury.io/js/ion7-calendar.svg)](https://badge.fury.io/js/ion7-calendar)
 [![MIT License][license-image]][license-url]
 
 ![date](https://github.com/HsuanXyz/hsuanxyz.github.io/blob/master/assets/ion2-calendar/calendar.png?raw=true)
@@ -491,7 +491,5 @@ openCalendar() {
 
 ## Thanks for reading
 
-[npm-url]: https://www.npmjs.com/package/@dominikro/ion7-calendar
-[npm-image]: https://img.shields.io/npm/v/ion2-calendar.svg
 [license-image]: http://img.shields.io/badge/license-MIT-blue.svg?style=flat
 [license-url]: LICENSE
