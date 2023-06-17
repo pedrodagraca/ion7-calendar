@@ -1,6 +1,6 @@
 {
-  "name": "@DominikRo/ion7-calendar",
-  "version": "3.6.20",
+  "name": "@dominikro/ion7-calendar",
+  "version": "3.6.21",
   "description": "A date picker component for ionic2 ",
   "main": "./dist/index.js",
   "typings": "./dist/index.d.ts",
@@ -23,10 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/DominikRo/ion7-calendar"
-  },
-  "publishConfig": {
-    "@DominikRo:registry": "https://npm.pkg.github.com"
+    "url": "git+https://github.com/DominikRo/ion7-calendar.git"
   },
   "devDependencies": {
     "@angular/common": "15.2.8",
@@ -78,5 +75,9 @@
         "moment": "moment"
       }
     }
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/DominikRo/ion7-calendar/issues"
+  },
+  "homepage": "https://github.com/DominikRo/ion7-calendar#readme"
 }
