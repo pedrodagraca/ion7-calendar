@@ -44,7 +44,7 @@ import { NgModule } from '@angular/core';
 import { IonicApp, IonicModule } from '@ionic/angular';
 import { MyApp } from './app.component';
 ...
-import { CalendarModule } from 'ion2-calendar';
+import { CalendarModule } from 'ion7-calendar';
 
 @NgModule({
   declarations: [
@@ -68,7 +68,7 @@ import { NgModule } from '@angular/core';
 import { IonicApp, IonicModule } from 'ionic-angular';
 import { MyApp } from './app.component';
 ...
-import { CalendarModule } from "ion2-calendar";
+import { CalendarModule } from "ion7-calendar";
 
 @NgModule({
   declarations: [
@@ -139,7 +139,7 @@ export class HomePage {
 
 ```typescript
 import { Component } from '@angular/core';
-import { CalendarComponentOptions } from 'ion2-calendar';
+import { CalendarComponentOptions } from 'ion7-calendar';
 
 @Component({
   selector: 'page-home',
@@ -171,7 +171,7 @@ export class HomePage {
 
 ```typescript
 import { Component } from '@angular/core';
-import { CalendarComponentOptions } from 'ion2-calendar';
+import { CalendarComponentOptions } from 'ion7-calendar';
 
 @Component({
   selector: 'page-home',
@@ -231,7 +231,7 @@ export class HomePage {
 
 ### Basic
 
-Import ion2-calendar in component controller.
+Import ion7-calendar in component controller.
 
 ```typescript
 import { Component } from "@angular/core";
@@ -241,7 +241,7 @@ import {
   CalendarModalOptions,
   DayConfig,
   CalendarResult,
-} from "ion2-calendar";
+} from "ion7-calendar";
 
 @Component({
   selector: "page-home",
