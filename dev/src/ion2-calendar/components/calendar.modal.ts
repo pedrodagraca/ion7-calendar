@@ -47,6 +47,10 @@ const NUM_OF_MONTHS_TO_CREATE = 6;
             <span *ngIf="_d.doneLabel !== '' && !_d.doneIcon">{{ _d.doneLabel }}</span>
             <ion-icon *ngIf="_d.doneIcon" name="checkmark"></ion-icon>
           </ion-button>
+               <ion-button type="button" slot="icon-only" fill="clear" (click)="onCancel()">
+            
+            <ion-icon name="close"></ion-icon>
+          </ion-button>     
         </ion-buttons>
       </ion-toolbar>
 
