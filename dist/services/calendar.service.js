@@ -157,19 +157,20 @@ var CalendarService = /** @class */ (function () {
     CalendarService.prototype.createCalendarMonth = function (original, opt) {
         var days = new Array(6).fill(null);
         var len = original.howManyDays;
-        for (var i = original.firstWeek; i < len + original.firstWeek; i++) {
-            var itemTime = new Date(original.year, original.month, i - original.firstWeek + 1).getTime();
+        var weekStart = opt.weekStart;
+        var adjustedFirstWeek = original.firstWeek;
+
+        // Adjust firstWeek if we're starting on Monday instead of Sunday
+        if (weekStart === 1) {
+            // Convert Sunday=0 to Sunday=6, and shift all other days down by 1
+            adjustedFirstWeek = original.firstWeek === 0 ? 6 : original.firstWeek - 1;
+        }
+
+        for (var i = adjustedFirstWeek; i < len + adjustedFirstWeek; i++) {
+            var itemTime = new Date(original.year, original.month, i - adjustedFirstWeek + 1).getTime();
             days[i] = this.createCalendarDay(itemTime, opt);
         }
-        var weekStart = opt.weekStart;
-        if (weekStart === 1) {
-            if (days[0] === null) {
-                days.shift();
-            }
-            else {
-                days.unshift.apply(days, new Array(6).fill(null));
-            }
-        }
+
         if (opt.showAdjacentMonthDay) {
             var _booleanMap = days.map(function (e) { return !!e; });
             var thisMonth = moment(original.time).month();
