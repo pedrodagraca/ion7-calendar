@@ -184,19 +184,18 @@ export class CalendarService {
   createCalendarMonth(original: CalendarOriginal, opt: InternalCalendarModalOptions): CalendarMonth {
     let days: Array<CalendarDay> = new Array(6).fill(null);
     let len = original.howManyDays;
-    for (let i = original.firstWeek; i < len + original.firstWeek; i++) {
-      let itemTime = new Date(original.year, original.month, i - original.firstWeek + 1).getTime();
-      days[i] = this.createCalendarDay(itemTime, opt);
+    let weekStart = opt.weekStart;
+    let adjustedFirstWeek = original.firstWeek;
+
+    // Adjust firstWeek if we're starting on Monday instead of Sunday
+    if (weekStart === 1) {
+      // Convert Sunday=0 to Sunday=6, and shift all other days down by 1
+      adjustedFirstWeek = original.firstWeek === 0 ? 6 : original.firstWeek - 1;
     }
 
-    let weekStart = opt.weekStart;
-
-    if (weekStart === 1) {
-      if (days[0] === null) {
-        days.shift();
-      } else {
-        days.unshift(...new Array(6).fill(null));
-      }
+    for (let i = adjustedFirstWeek; i < len + adjustedFirstWeek; i++) {
+      let itemTime = new Date(original.year, original.month, i - adjustedFirstWeek + 1).getTime();
+      days[i] = this.createCalendarDay(itemTime, opt);
     }
 
     if (opt.showAdjacentMonthDay) {
